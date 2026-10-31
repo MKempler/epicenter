@@ -4,6 +4,8 @@
 
 It is measured on 468 held-out outages from the [RCAEval](https://github.com/phamquiluan/RCAEval) benchmark against published methods re-run on the same cases, and it can be watched live: break a service in a running microservice shop and see the alarm, the investigation and the verdict as they happen.
 
+**Try it: [epicenter.watch](https://epicenter.watch).** Break a service in the live shop and watch the investigation, replay any of the 468 recorded outages, or read the evidence behind every number.
+
 Built for the Meta Global AI Developer Hackathon, October 26 – November 4, 2026.
 
 ---
@@ -23,6 +25,7 @@ Top-1 accuracy (AC@1, the true root cause ranked first) on the held-out test spl
 
 - **The Spark agent beats the best published method on every suite** (paired exact McNemar on AC@1: p = 1e-16, 2e-7 and 6e-6).
 - **Fine-tuning Meta's 30B open-weight model** on 212 of Spark's verified investigations lifted it from 0.58–0.65 to 0.82–0.94 (p < 0.001 on each suite). Its top-3 accuracy (0.987, 0.988, 0.951) is not significantly different from hosted Spark's on any suite.
+- **End to end, with our own detector choosing where to look** (no fault time given), the hosted agent scores 0.840, 0.858 and 0.617. Watching error logs as well as metrics lifted RE3, where code bugs barely move the metrics, from 0.346 (p = 3e-6); see [Evaluation in detail](#evaluation-in-detail).
 - **Live, on a running shop:** the alarm fired on 9 of 9 injected faults, the agent ranked the broken service first on 6 and in its top three on 8.
 
 The agents use every source a case has: metrics, plus logs and traces in RE2 and RE3 (RE1 has metrics only). Every number here comes from a recorded run in [`runs/`](runs) and can be reproduced without network access; see [Reproduce](#reproduce).
