@@ -1,14 +1,16 @@
 # Public HTTPS in front of the console, which listens only on 127.0.0.1:8000.
-# SITE_ADDRESS is the server's hostname (a domain, or <ip-with-dashes>.sslip.io
-# until one is set up); Caddy gets and renews the certificate itself.
+# SITE_ADDRESS lists the hostnames to serve, space-separated: any domains pointed
+# here and <ip-with-dashes>.sslip.io (deploy/start.sh sets it); Caddy gets and
+# renews a certificate for each itself.
 #
 # Caddy replaces any X-Forwarded-For a visitor sends with their real address,
 # and the API reads the last entry, so the per-visitor cooldown can't be spoofed.
 
 {$SITE_ADDRESS} {
 	encode gzip
+	# the largest legitimate request is a metric stream posted to /api/detect
 	request_body {
-		max_size 2MB    # the largest legitimate request is a metric stream posted to /api/detect
+		max_size 2MB
 	}
 	reverse_proxy 127.0.0.1:8000 {
 		flush_interval -1    # stream the live lab's server-sent events as they happen
