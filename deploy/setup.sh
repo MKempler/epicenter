@@ -39,6 +39,6 @@ if ! swapon --show | grep -q /swapfile; then
 fi
 
 if [ ! -d /opt/epicenter ]; then
-  git clone https://github.com/MKempler/network-anomaly-detection.git /opt/epicenter
+  git clone https://github.com/MKempler/epicenter.git /opt/epicenter
 fi
 echo "Setup done. Next, from your machine: deploy/push-env.sh SERVER, then deploy/start.sh on the server."
