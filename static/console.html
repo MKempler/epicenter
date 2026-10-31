@@ -99,7 +99,8 @@ nav button.theme { width: 48px; padding: 0; }
 
 /* flight log */
 .log { font: 400 12px/1.55 var(--mono); }
-.log .line { display: grid; grid-template-columns: 54px 38px 1fr; gap: 0 10px; padding: 3px 18px; border-bottom: 1px solid var(--rule); }
+.log .line { display: grid; grid-template-columns: 54px 38px minmax(0, 1fr); gap: 0 10px; padding: 3px 18px; border-bottom: 1px solid var(--rule); }
+.log .line > * { overflow-wrap: anywhere; }
 .log .line .tag { color: var(--ink-3); }
 .log .line.note { font-family: var(--sans); font-size: 13px; color: var(--ink); }
 .log .line.note .tag { font-family: var(--mono); font-size: 12px; }
@@ -122,11 +123,11 @@ table.verdict:empty + .hint { display: block; }
 .verdict .meter { height: 2px; background: var(--rule); margin: 6px 0 5px; }
 .verdict .meter div { height: 2px; background: var(--ink-2); }
 .verdict .why { font-size: 13px; color: var(--ink-2); margin-top: 4px; }
-.verdict .stamp { display: inline-block; margin-top: 6px; font: 600 10px/1 var(--cond); letter-spacing: 0.1em; text-transform: uppercase;
+.verdict .stamp { display: inline-block; margin-top: 6px; font: 600 11px/1 var(--cond); letter-spacing: 0.1em; text-transform: uppercase;
                   border: 1px solid currentColor; padding: 3px 5px; }
 .verdict .stamp.ok { color: var(--ok); } .verdict .stamp.bad { color: var(--signal); }
 .verdict .cite { font: 400 11px var(--mono); color: var(--ink-3); margin-left: 6px; cursor: pointer; border-bottom: 1px solid var(--rule-strong); }
-.verdict tr.truth td { box-shadow: inset 2px 0 0 var(--ok); }
+.verdict tr.truth td:first-child { box-shadow: inset 3px 0 0 var(--ok); }
 .fix-text { margin: 0 0 10px; font-size: 13px; }
 .fix-text b { font-weight: 500; }
 .verdict tr.status td { padding: 2px 0 10px; border-bottom: 1px solid var(--rule-strong); }
@@ -134,11 +135,11 @@ table.verdict:empty + .hint { display: block; }
 .verdict .answer.ok { color: var(--ok); } .verdict .answer.esc { color: var(--signal); }
 .verdict .answer small { display: block; font: 400 12px/1.4 var(--sans); letter-spacing: 0; text-transform: none; color: var(--ink-3); }
 .verdict .more { margin: 8px 0 0; background: none; border: 1px solid var(--rule-strong); padding: 5px 9px; cursor: pointer;
-                 font: 600 10px/1 var(--cond); letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-2); }
+                 font: 600 11px/1 var(--cond); letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-2); }
 .verdict .more:hover, .verdict .more[aria-expanded="true"] { border-color: var(--ink); color: var(--ink); }
 .verdict tr.detail td { padding: 0 0 14px; border-bottom: 1px solid var(--rule); }
 .detail-box { border-left: 2px solid var(--rule-strong); margin-left: 46px; padding: 2px 0 2px 12px; font-size: 12.5px; color: var(--ink-2); }
-.detail-box h4 { margin: 10px 0 4px; font: 600 10px/1 var(--cond); letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-3); }
+.detail-box h4 { margin: 10px 0 4px; font: 600 11px/1.2 var(--cond); letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-3); }
 .detail-box p { margin: 0 0 4px; }
 .detail-box .ev { font: 400 11px/1.5 var(--mono); padding: 3px 0; cursor: pointer; border-bottom: 1px dotted var(--rule); }
 .detail-box .ev:hover { background: var(--raised); }
@@ -268,6 +269,19 @@ table.dtable td:first-child { white-space: nowrap; overflow-wrap: normal; }   /*
   table.ttable th { white-space: normal; }
   .dtable th:first-child, .dtable td:first-child { padding-left: 16px; }
   .rail { overflow-x: auto; }   /* the study's eight steps scroll in their row, never the page */
+  .log .line { grid-template-columns: 34px 30px minmax(0, 1fr); gap: 0 8px; padding: 3px 12px; }
+  .figs b small { display: block; margin: 6px 0 0; }   /* "17 of 25" under the percentage, so the three figures line up */
+}
+
+/* touch screens and phone widths: controls a finger can hit (about 44 px tall) */
+@media (pointer: coarse), (max-width: 700px) {
+  .picker label { padding: 13px 10px; }
+  .faults label { padding: 11px 10px; }
+  .lib-tabs button, .lib-filter button { min-height: 40px; }
+  .verdict .cite { display: inline-block; min-width: 32px; padding: 9px 5px; margin-left: 1px; text-align: center; box-sizing: border-box;
+                   border-bottom: 0; text-decoration: underline; text-decoration-color: var(--rule-strong); text-underline-offset: 3px; }
+  .verdict .more { padding: 10px 12px; }
+  #study-exit label.mono { display: inline-block; padding: 10px 0; }
 }
 
 /* three columns: the log-and-verdict column scrolls on its own, so the list and the chart stay put */
