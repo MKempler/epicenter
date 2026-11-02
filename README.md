@@ -303,6 +303,7 @@ modal deploy scripts/finetune/modal_app.py               # vLLM: base and adapte
 - **The live lab is small.** 10 services, four fault types, and calibration batches of nine outages: a demonstration, not a benchmark.
 - **The fine-tuned model still trails the hosted one** on first place for RE1 and RE3. It learned from Spark's actions and short notes; Spark's full reasoning is not available to learn from.
 - **In this demo Glimmer runs on a rented cloud GPU.** Keeping telemetry on your own hardware is what open weights make possible, not what this deployment does.
+- **It can blame a service's own database.** In 2 of hosted Spark's 19 wrong first answers on test, it named a Train Ticket service's MongoDB instead of the service whose fault made the database change. The database's change is real evidence, so the verifier accepts it: the verifier checks that cited evidence is real, not which way cause and effect run. A check of which changed first, developed on train outages under a new spec, is the natural next step. `python scripts/report_misses.py` reproduces the count.
 - **A call-graph prior didn't help.** We tested a deterministic re-ranker that demotes downstream "victim" services using the trace call graph; on the 265 train investigations that produced a ranking it dropped AC@1 from 0.928 to 0.887 (breaking 11, fixing 0), so we did not ship it. The agent already reasons about cause versus victim through `get_dependencies`.
 
 ---
