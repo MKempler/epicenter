@@ -221,14 +221,34 @@ def test_visitor_cooldown_and_menu_are_enforced(tmp_path):
         lab.submit("investigator", "pause", "5.6.7.8")
 
 
-def test_fault_is_reverted_even_if_the_investigation_crashes(tmp_path):
+def test_an_unreachable_model_is_recorded_and_the_fault_reverted(tmp_path):
     lab, inj, seen = make_lab(tmp_path)
-    def boom(inv, on_step, model=None): raise RuntimeError("model down")
+    def boom(inv, on_step, model=None): raise RuntimeError("402 credit exhausted")
     lab.investigate = boom
     lab.submit("cartservice", "delay", "1.2.3.4")
-    with pytest.raises(RuntimeError):
-        lab.run(lab.waiting.popleft())
+    incident = lab.waiting.popleft()
+    lab.run(incident)
     assert inj.log[-1] == ("revert", "cartservice", "delay")
+    assert incident.verdict["investigated"] is False and "Replay" in incident.verdict["error"]
+    assert "402" in incident.verdict["cause"] and incident.phase == "recovered"
+    recorded = json.loads((tmp_path / "incidents.jsonl").read_text().splitlines()[-1])
+    assert recorded["verdict"]["investigated"] is False
+
+
+def test_the_queue_keeps_running_after_an_outage_fails(tmp_path):
+    lab, inj, seen = make_lab(tmp_path)
+    runs = []
+    def run(incident):
+        runs.append(incident.id)
+        if len(runs) == 1:
+            raise RuntimeError("unexpected")
+        raise SystemExit   # stop the loop once the second outage was taken
+    lab.run = run
+    lab.submit("cartservice", "delay", "1.2.3.4")
+    lab.submit("frontend", "cpu", "5.6.7.8")
+    with pytest.raises(SystemExit):
+        lab.run_forever()
+    assert len(runs) == 2
 
 
 def test_span_reader_skips_a_half_written_line_and_resumes(tmp_path):

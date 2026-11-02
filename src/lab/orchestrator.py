@@ -26,6 +26,7 @@ import json
 import queue
 import threading
 import time
+import traceback
 import uuid
 from collections import deque
 from dataclasses import asdict, dataclass, field, replace
@@ -40,6 +41,8 @@ from src.tools import Investigation
 
 RECORDS = Path(__file__).resolve().parents[2] / "runs" / "live" / "incidents.jsonl"
 DEFAULT_MODEL = "spark-open"
+UNAVAILABLE = ("The live investigator couldn't be reached, so this outage wasn't investigated. "
+               "Every one of the 468 recorded investigations can still be watched under Replay.")
 
 
 def visitor_key(address: str) -> str:
@@ -197,7 +200,10 @@ class Lab:
                 self.sleep(1)
                 continue
             self.publish({"type": "queue", "queue": self.queue_view()})   # it left the queue: watchers update
-            self.run(incident)
+            try:
+                self.run(incident)
+            except Exception:   # one bad outage must never stop the queue behind it
+                traceback.print_exc()
 
     def _budget_left(self) -> bool:
         day = datetime.now(timezone.utc).strftime("%Y-%m-%d")
@@ -349,7 +355,13 @@ class Lab:
             incident.trail.append(step)
             self.publish({"type": "step", "id": incident.id, "step": step})
 
-        run = self.investigate(inv, on_step=on_step, model=incident.model)
+        try:
+            run = self.investigate(inv, on_step=on_step, model=incident.model)
+        except Exception as error:   # the model API is down, out of credit or unreachable
+            incident.verdict = {"detected": True, "investigated": False, "error": UNAVAILABLE,
+                                "cause": f"{type(error).__name__}: {str(error)[:200]}"}
+            self._phase(incident, "diagnosed", verdict={k: v for k, v in incident.verdict.items() if k != "cause"})
+            return
         try:
             incident.graph = inv.call_graph()
         except Exception:   # the graph only feeds a display; never lose the diagnosis over it
