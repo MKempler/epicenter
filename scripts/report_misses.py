@@ -7,7 +7,9 @@ Reads recorded runs only; no model is called.
   answer, the agent's own first pick is placed relative to the true cause in the call
   graph recorded from that outage's traces (src/evaluate_explain.py, graph_relation):
   an upstream victim, downstream of the cause, unconnected, or unknown without traces.
-  A first pick that was right but whose evidence the verifier rejected is counted apart.
+  A first pick that was right but whose evidence the verifier rejected is counted apart,
+  and so are wrong first picks that blamed the true cause's own datastore (its Mongo,
+  Redis or database): its change is real evidence, but a symptom of the service.
 - End to end (our detector chose where to look): misses split into outages the
   detector never flagged and outages it flagged but the agent got wrong, for the
   metric-only detector (eval-spec-v1) and the one that also watches error logs
@@ -16,6 +18,7 @@ A summary line goes to runs/miss_summary.jsonl.
 """
 
 import json
+import re
 import sys
 import uuid
 from collections import Counter
@@ -35,6 +38,15 @@ from run_explain import to_results  # noqa: E402
 SUITES = ("RE1", "RE2", "RE3")
 HOSTED = {"RE1": "spark-agent", "RE2": "spark-agent-all", "RE3": "spark-agent-all"}   # RE1 has metrics only
 RELATIONS = ("upstream victim", "downstream of the cause", "unconnected", "no traces")
+DATASTORE = re.compile(r"mongo|redis|mysql|postgres|-db$", re.I)
+
+
+def own_datastore(first: str, truth: str) -> bool:
+    """Is the wrong first pick the true cause's own datastore, e.g. ts-order-mongo for ts-order-service?"""
+    stem = re.sub(r"^ts-|-?service$", "", service_of_item(truth))
+    return bool(DATASTORE.search(first)) and bool(stem) and stem in first
+
+
 DETECTORS = {"v1": "_detector", "v1.4": "_detector_logs"}   # metrics only; metrics and error logs
 
 
@@ -45,7 +57,7 @@ def rows(name: str) -> list[dict]:
 
 def main():
     commit, dirty = git_state()
-    diagnosis, end_to_end = {}, {}
+    diagnosis, end_to_end, datastore = {}, {}, Counter()
     for suite in SUITES:
         labels = load_labels(suite)
         tally = Counter()
@@ -61,6 +73,8 @@ def main():
             else:
                 bundle = json.loads((ROOT / "runs" / "replay" / suite / f"{r['case_id']}.json").read_text())
                 tally[graph_relation(bundle.get("graph") or [], first, truth)] += 1
+                if own_datastore(service_of_item(first), truth):
+                    datastore[suite] += 1
         diagnosis[suite] = dict(tally)
 
         end_to_end[suite], scored = {}, {}
@@ -85,6 +99,7 @@ def main():
     for suite, t in diagnosis.items():
         print(f"  {suite}: {sum(t.values())} wrong: " + ", ".join(f"{k} {v}" for k, v in sorted(t.items())))
     print(f"  all: {sum(total.values())} wrong: " + ", ".join(f"{k} {v}" for k, v in sorted(total.items())))
+    print(f"  of which blamed the true cause's own datastore: {sum(datastore.values())} ({dict(datastore)})")
     print("\nEnd to end, our detector choosing where to look (hosted Spark, all sources):")
     for suite, e in end_to_end.items():
         for version in DETECTORS:
@@ -98,7 +113,7 @@ def main():
                   f"{m['b_only']} only with v1, p = {m['p_value']:.2g}")
 
     line = {"run_id": uuid.uuid4().hex[:12], "timestamp": datetime.now(timezone.utc).isoformat(timespec="seconds"),
-            "git_commit": commit, "git_dirty": dirty, "diagnosis_misses": diagnosis, "end_to_end": end_to_end}
+            "git_commit": commit, "git_dirty": dirty, "diagnosis_misses": diagnosis, "own_datastore": dict(datastore), "end_to_end": end_to_end}
     with open(ROOT / "runs" / "miss_summary.jsonl", "a") as f:
         f.write(json.dumps(line) + "\n")
     print(f"\nrecorded run {line['run_id']}")
