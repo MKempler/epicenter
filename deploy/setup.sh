@@ -32,6 +32,12 @@ if [ ! -f /etc/docker/daemon.json ]; then
   systemctl restart docker
 fi
 
+# Once a day, check the live lab's model still answers (the hackathon key has a fixed credit and no balance
+# to look up); results go to /var/log/epicenter-model-check.log.
+printf '%s\n' 'SHELL=/bin/sh' \
+  '0 12 * * * root docker exec investigator python -m src.lab.model_check >> /var/log/epicenter-model-check.log 2>&1' \
+  > /etc/cron.d/epicenter-model-check
+
 # A little swap, so building images can't run the server out of memory.
 if ! swapon --show | grep -q /swapfile; then
   fallocate -l 2G /swapfile && chmod 600 /swapfile && mkswap /swapfile && swapon /swapfile

@@ -425,3 +425,16 @@ def test_recent_keeps_the_last_seconds_and_only_the_asked_metrics(tmp_path):
     assert tel.recent(2, {"cart_latency"}) == [(107, {"cart_latency": 107.0}), (108, {"cart_latency": 108.0}),
                                                (109, {"cart_latency": 109.0})]
     assert Telemetry(docker_client=None, spans_file=tmp_path / "none.jsonl").recent(300, {"cart_cpu"}) == []
+
+
+def test_model_check_reports_a_dead_key_without_raising(monkeypatch):
+    from src.lab import model_check
+    monkeypatch.setenv("BASETEN_API_KEY", "not-a-real-key")
+    class Refusing:
+        def __init__(self, **kw): self.chat = self
+        @property
+        def completions(self): return self
+        def create(self, **kw): raise RuntimeError("401 invalid api key")
+    monkeypatch.setattr("openai.OpenAI", Refusing)
+    line = model_check.check("baseten")
+    assert line["ok"] is False and "401" in line["error"] and line["model"] == "meta-models/muse-spark-open-1026"
