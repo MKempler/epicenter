@@ -480,6 +480,8 @@ function el(tag, cls, text) { const n = document.createElement(tag); if (cls) n.
 async function api(path, opts) { const r = await fetch(path, opts); const body = await r.json().catch(() => ({})); if (!r.ok) throw Object.assign(new Error(body.detail || r.status), { status: r.status }); return body; }
 const SYSTEM = { OB: "Online Boutique", SS: "Sock Shop", TT: "Train Ticket" };
 const SHORT_SYSTEM = { OB: "Boutique", SS: "Sock Shop", TT: "Train Ticket" };
+const HOSTED = "Muse Spark (hosted)";   // every recorded replay is hosted Spark's agent (spark-agent / spark-agent-all)
+function replayStatus(b) { setStatus([["SYSTEM", b.system_name], ["MODEL", HOSTED], ["SOURCES", b.sources.join(" · ")], ["REPLAY", "recorded"]]); }
 const FAULT_TAG = { delay: "+400 ms", loss: "30% of packets", cpu: "1% of a core", pause: "frozen" };
 const MODEL_TAG = { "spark-open": ["Spark Open", "default · hosted"], "glimmer-tuned": ["Glimmer 30B", "fine-tuned"] };
 const RANKERS = { "baro": "BARO", "nsigma": "N-Sigma", "mmbaro": "Multi-source BARO", "no-ai": "No-AI control",
@@ -512,7 +514,13 @@ try { const t = localStorage.getItem("theme"); if (t) document.documentElement.d
 function go(hash) { if (location.hash.slice(1) !== hash) location.hash = hash; else route(); }
 const narrow = () => matchMedia("(max-width: 1100px)").matches;
 document.querySelectorAll("nav button[data-view]").forEach((b) => b.onclick = () => go(b.dataset.view));
+let currentView = "live";
 function show(view, autoload = true) {
+  currentView = view;
+  // the top bar describes what this view shows: the live lab, a recorded investigation, or the benchmark
+  if (view === "live") showModel(live.incident?.model);
+  else if (view === "replay") replay.bundle ? replayStatus(replay.bundle) : setStatus([["REPLAYS", "468 held-out benchmark outages"], ["MODEL", HOSTED]]);
+  else if (view === "evidence") setStatus([["EVIDENCE", "468 held-out RCAEval outages"], ["MODELS", "Muse Spark · Spark Open · Glimmer 30B"]]);
   document.querySelectorAll("nav button[data-view]").forEach((b) => b.toggleAttribute("aria-current", b.dataset.view === view));
   document.querySelectorAll("nav button[data-view][aria-current]").forEach((b) => b.setAttribute("aria-current", "page"));
   document.querySelectorAll(".view").forEach((v) => v.classList.toggle("on", v.id === `view-${view}`));
@@ -782,6 +790,7 @@ async function openCase(caseId) {
   document.querySelectorAll("#case-list .case").forEach((x) => x.setAttribute("aria-selected", String(x.dataset.case === caseId)));
   document.querySelector(`#case-list .case[data-case="${CSS.escape(caseId)}"]`)?.scrollIntoView({ block: "nearest" });
   $("#replay-title").textContent = `${b.system_name} · ${caseId} · ${b.sources.join(" · ")}`;
+  if (currentView === "replay") replayStatus(b);
   $("#replay-log").replaceChildren(); renderVerdict("replay-verdict", []); $("#replay-verdict").replaceChildren();
   $("#reveal-box").hidden = true; $("#replay-table").hidden = true; $("#replay-strips").hidden = false;
   renderRail("replay-rail", "baseline", {}, () => "", REPLAY_PHASES);
@@ -1050,6 +1059,7 @@ function renderQueue(q) {
 }
 const modelName = (key) => live.models?.[key] || "Muse Spark Open";
 function showModel(key) {
+  if (currentView !== "live") return;   // live events arrive on every tab; only the Live view's bar describes the lab
   setStatus([["SYSTEM", "Online Boutique · 10 services"], ["MODEL", modelName(key)], ["SOURCES", "metrics · logs · traces"], ["LAB", "live"]]);
 }
 function applyIncident(inc) {
