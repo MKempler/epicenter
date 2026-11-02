@@ -1030,14 +1030,13 @@ async function initLive() {
 
 function renderTally(t) {
   const f = $("#tally"); f.replaceChildren();
-  const pct = t.investigated ? Math.round(100 * t.top1 / t.investigated) + "%" : "—";
-  const sub = t.investigated ? `${t.top1} of ${t.investigated}` : "";
-  [["Outages so far", t.incidents, ""], ["Alarm raised", t.detected, ""], ["Named the cause first", pct, sub]].forEach(([k, v, small]) => {
-    const d = el("div"); const num = el("b", null, v); if (small) num.append(el("small", null, small));
-    d.append(el("span", "label", k), num); f.append(d);
+  [["Outages so far", t.incidents], ["Alarm raised", t.detected], ["Investigated", t.investigated]].forEach(([k, v]) => {
+    const d = el("div"); d.append(el("span", "label", k), el("b", null, v)); f.append(d);
   });
-  $("#tally-note").textContent = t.incidents
-    ? "Every fault injected into this lab so far, early test runs included. Benchmark results are under Evidence."
+  // the live result in plain words, next to the benchmark's: different models and settings, so never one number
+  $("#tally-note").textContent = t.investigated
+    ? `Named the broken service first in ${t.top1} of ${t.investigated} live outages, early test runs included. ` +
+      "On 468 held-out benchmark outages, hosted Spark names it first 95–98% of the time; see Evidence."
     : "Live outages are counted here as they finish. Benchmark results are under Evidence.";
 }
 function renderQueue(q) {
@@ -1049,6 +1048,7 @@ function showModel(key) {
   setStatus([["SYSTEM", "Online Boutique · 10 services"], ["MODEL", modelName(key)], ["SOURCES", "metrics · logs · traces"], ["LAB", "live"]]);
 }
 function applyIncident(inc) {
+  if (inc.id === live.mine && inc.phase !== "queued") { $("#break-msg").textContent = ""; live.mine = null; }
   if (!live.incident || live.incident.id !== inc.id) {
     showModel(inc.model);
     live.incident = inc; $("#live-log").replaceChildren(); $("#live-verdict").replaceChildren(); $("#live-feedback").hidden = true;
@@ -1169,7 +1169,7 @@ $("#break-btn").onclick = async () => {
   const model = document.querySelector("input[name=model]:checked")?.value || "spark-open";
   const msg = $("#break-msg"); msg.textContent = "";
   try { const r = await api("/api/live/break", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ service, fault, model }) });
-        msg.textContent = `queued · position ${r.position}`;
+        msg.textContent = `queued · position ${r.position}`; live.mine = r.id;
         if (narrow()) $("#live-log").previousElementSibling.scrollIntoView({ behavior: "smooth", block: "start" }); }
   catch (e) { msg.textContent = String(e.message); }
 };
