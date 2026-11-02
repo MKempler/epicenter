@@ -198,7 +198,7 @@ a.btn.solid { color: var(--surface); }
 .figs div:last-child { border-right: 0; }
 .figs b { display: block; font: 600 34px/1 var(--cond); margin-top: 8px; white-space: nowrap; }
 .figs b small { display: block; margin-top: 6px; font: 400 12px/1.35 var(--mono); color: var(--ink-3); letter-spacing: 0; white-space: normal; }
-.tally-note { margin: 0; padding: 8px 18px 10px; border-top: 1px solid var(--rule); border-bottom: 1px solid var(--rule);
+.tally-note { text-wrap: balance; margin: 0; padding: 8px 18px 10px; border-top: 1px solid var(--rule); border-bottom: 1px solid var(--rule);
               font-size: 12px; color: var(--ink-3); }
 
 /* library */
@@ -1040,8 +1040,8 @@ function renderTally(t) {
     d.append(el("span", "label", k), num); f.append(d);
   });
   $("#tally-note").textContent = t.investigated
-    ? "The live lab is a real-time demo, not the benchmark, and its count includes early test runs. " +
-      `Live investigations named the broken service first in ${t.top1} of ${t.investigated}.`
+    ? "A real-time demo, not the benchmark; early test runs included. " +
+      `Live investigations named the broken service first in\u00a0${t.top1}\u00a0of\u00a0${t.investigated}.`
     : "Live outages are counted here as they finish. Benchmark results are under Evidence.";
 }
 function renderQueue(q) {
