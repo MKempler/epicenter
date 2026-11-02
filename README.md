@@ -2,6 +2,9 @@
 
 [![Live demo](https://img.shields.io/badge/live_demo-epicenter.watch-d6451a)](https://epicenter.watch) [![Model on Hugging Face](https://img.shields.io/badge/model-Glimmer_30B_LoRA-ffcc4d?logo=huggingface&logoColor=black)](https://huggingface.co/maxkempler/epicenter-glimmer-30b-rca-lora) [![License: MIT](https://img.shields.io/badge/license-MIT-2a78d6)](LICENSE) [![Tests](https://img.shields.io/badge/tests-191-2ea44f)](tests)
 
+<p align="center"><img src="media/demo.gif" alt="The live lab: paymentservice is slowed, the alarm fires, the agent investigates, ranks paymentservice first at 96% and verified, a person approves the proposed rollback, and the shop recovers 21 s later" width="900"></p>
+<p align="center"><sub>A real outage on <a href="https://epicenter.watch">epicenter.watch</a>, sped up: break a service, the alarm fires, the agent investigates and names the cause with checked evidence, a person approves the rollback, and the shop recovers.</sub></p>
+
 **Epicenter watches server and service telemetry, detects when it departs from normal, and sends a Meta Muse agent to find which component caused it.** The agent queries metrics, logs, traces and the call graph, and returns five ranked root causes. A deterministic verifier checks the evidence behind every cause, and the agent drafts the internal ticket note and the customer update, citing that evidence sentence by sentence.
 
 It is measured on 468 held-out outages from the [RCAEval](https://github.com/phamquiluan/RCAEval) benchmark against published methods re-run on the same cases, and it can be watched live: break a service in a running microservice shop and see the alarm, the investigation and the verdict as they happen.
