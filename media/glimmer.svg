@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 330" width="640" height="330" role="img" aria-label="Top-1 accuracy of the Glimmer 30B agent on the held-out outages: base 0.653, 0.586 and 0.580 on RE1, RE2 and RE3; fine-tuned 0.911, 0.944 and 0.815. Investigations that failed to submit a ranking: 140 of 468 base, 1 of 468 fine-tuned."><style>
+  .t1 { fill: #0b0b0b; } .t2 { fill: #52514e; } .grid { stroke: #e4e3df; } .axis { stroke: #b9b7b0; }
+  .s1 { fill: #2a78d6; } .s2 { fill: #1baf7a; } .s3 { fill: #6250d6; }
+  @media (prefers-color-scheme: dark) {
+    .t1 { fill: #f0efec; } .t2 { fill: #c3c2b7; } .grid { stroke: #30363d; } .axis { stroke: #57606a; }
+    .s1 { fill: #3987e5; } .s2 { fill: #199e70; } .s3 { fill: #9085e9; }
+  }
+  text { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif; }
+  .title { font-size: 15px; font-weight: 600; } .sub { font-size: 12px; } .lab { font-size: 13px; }
+  .val { font-size: 11.5px; font-variant-numeric: tabular-nums; } .leg { font-size: 12.5px; }</style>
+<text class="t1 title" x="20" y="24">Glimmer 30B agent, top-1 on the held-out outages</text>
+<rect class="s2" x="64" y="40" width="12" height="12" rx="3"/>
+<text class="t1 leg" x="82" y="50.5">Glimmer 30B, base</text>
+<rect class="s1" x="216.2" y="40" width="12" height="12" rx="3"/>
+<text class="t1 leg" x="234.2" y="50.5">Glimmer 30B, fine-tuned on Spark's verified investigations</text>
+<line class="axis" x1="64" x2="584" y1="262.0" y2="262.0" stroke-width="1"/>
+<text class="t2 val" x="56" y="266.0" text-anchor="end">0.00</text>
+<line class="grid" x1="64" x2="584" y1="214.0" y2="214.0" stroke-width="1"/>
+<text class="t2 val" x="56" y="218.0" text-anchor="end">0.25</text>
+<line class="grid" x1="64" x2="584" y1="166.0" y2="166.0" stroke-width="1"/>
+<text class="t2 val" x="56" y="170.0" text-anchor="end">0.50</text>
+<line class="grid" x1="64" x2="584" y1="118.0" y2="118.0" stroke-width="1"/>
+<text class="t2 val" x="56" y="122.0" text-anchor="end">0.75</text>
+<line class="grid" x1="64" x2="584" y1="70.0" y2="70.0" stroke-width="1"/>
+<text class="t2 val" x="56" y="74.0" text-anchor="end">1.00</text>
+<path class="s2" d="M105.7,262 V140.6 Q105.7,136.6 109.7,136.6 H145.7 Q149.7,136.6 149.7,140.6 V262 Z"/>
+<text class="t2 val" x="127.7" y="130.6" text-anchor="middle">0.653</text>
+<path class="s1" d="M151.7,262 V91.1 Q151.7,87.1 155.7,87.1 H191.7 Q195.7,87.1 195.7,91.1 V262 Z"/>
+<text class="t1 val" x="173.7" y="81.1" text-anchor="middle" font-weight="600">0.911</text>
+<text class="t1 lab" x="150.7" y="284" text-anchor="middle">RE1</text>
+<path class="s2" d="M279.0,262 V153.4 Q279.0,149.4 283.0,149.4 H319.0 Q323.0,149.4 323.0,153.4 V262 Z"/>
+<text class="t2 val" x="301.0" y="143.4" text-anchor="middle">0.586</text>
+<path class="s1" d="M325.0,262 V84.69999999999999 Q325.0,80.69999999999999 329.0,80.69999999999999 H365.0 Q369.0,80.69999999999999 369.0,84.69999999999999 V262 Z"/>
+<text class="t1 val" x="347.0" y="74.7" text-anchor="middle" font-weight="600">0.944</text>
+<text class="t1 lab" x="324.0" y="284" text-anchor="middle">RE2</text>
+<path class="s2" d="M452.3,262 V154.6 Q452.3,150.6 456.3,150.6 H492.3 Q496.3,150.6 496.3,154.6 V262 Z"/>
+<text class="t2 val" x="474.3" y="144.6" text-anchor="middle">0.580</text>
+<path class="s1" d="M498.3,262 V109.6 Q498.3,105.6 502.3,105.6 H538.3 Q542.3,105.6 542.3,109.6 V262 Z"/>
+<text class="t1 val" x="520.3" y="99.6" text-anchor="middle" font-weight="600">0.815</text>
+<text class="t1 lab" x="497.3" y="284" text-anchor="middle">RE3</text>
+<text class="t2 sub" x="20" y="312">Investigations that never submitted a ranking: 140 of 468 before fine-tuning, 1 of 468 after.</text>
+</svg>
