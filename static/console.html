@@ -123,6 +123,8 @@ table.verdict:empty + .hint { display: block; }
 .verdict .meter { height: 2px; background: var(--rule); margin: 6px 0 5px; }
 .verdict .meter div { height: 2px; background: var(--ink-2); }
 .verdict .why { font-size: 13px; color: var(--ink-2); margin-top: 4px; }
+.verdict tr.repeat td { padding: 6px 0; } .verdict tr.repeat td.r { font-size: 18px; }
+.verdict tr.repeat .svc, .verdict tr.repeat .why { color: var(--ink-3); }
 .verdict .stamp { display: inline-block; margin-top: 6px; font: 600 11px/1 var(--cond); letter-spacing: 0.1em; text-transform: uppercase;
                   border: 1px solid currentColor; padding: 3px 5px; }
 .verdict .stamp.ok { color: var(--ok); } .verdict .stamp.bad { color: var(--signal); }
@@ -697,7 +699,14 @@ function renderVerdict(id, causes, error, ctx) {
     const a = el("div", `answer ${cls}`, head); if (why) a.append(el("small", null, why)); td.append(a); tr.append(td); table.append(tr);
   }
   if (error || !causes || !causes.length) { const tr = el("tr"); tr.append(el("td", "r", "—"), el("td", "why", error || "No ranking was submitted.")); table.append(tr); return; }
+  const firstRank = {};
   causes.forEach((c, i) => {
+    if (c.service in firstRank) {   // the model named a service twice: shown, but it counts only once
+      const tr = el("tr", "repeat"); tr.append(el("td", "r", String(i + 1)));
+      const td = el("td"); td.append(el("div", "svc", c.service), el("div", "why", `Repeat of #${firstRank[c.service] + 1}, counted once.`));
+      tr.append(td); table.append(tr); return;
+    }
+    firstRank[c.service] = i;
     const tr = el("tr", i === 0 ? "first" : ""); tr.dataset.service = c.service;
     tr.append(el("td", "r", String(i + 1)));
     const td = el("td"); td.append(el("div", "svc", c.service));
