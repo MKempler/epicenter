@@ -1,10 +1,10 @@
 # Epicenter
 
-[![Live demo](https://img.shields.io/badge/live_demo-epicenter.watch-d6451a?style=flat-square&labelColor=2b2b2b)](https://epicenter.watch) [![Model on Hugging Face](https://img.shields.io/badge/Hugging_Face-Glimmer_30B_LoRA-ffd21e?style=flat-square&logo=huggingface&logoColor=ffd21e&labelColor=2b2b2b)](https://huggingface.co/maxkempler/epicenter-glimmer-30b-rca-lora) [![License: MIT](https://img.shields.io/badge/license-MIT-6e6c66?style=flat-square&labelColor=2b2b2b)](LICENSE) [![Tests](https://img.shields.io/badge/tests-191_passing-6e6c66?style=flat-square&labelColor=2b2b2b)](tests)
-
-<p align="center"><a href="https://epicenter.watch"><img src="media/hero.jpg" alt="The live console on epicenter.watch, ready for a fault: the menu to pick a service, a fault and the model that investigates, the inject button, the benchmark and live tallies, eight live telemetry charts from the shop, and the empty flight log and verdict panels" width="900"></a></p>
-<p align="center"><em>The live console on <a href="https://epicenter.watch">epicenter.watch</a>: pick a service and a fault, then watch the agent find it.</em></p>
-<p align="center"><a href="https://epicenter.watch"><img src="https://img.shields.io/badge/Try_it_live-epicenter.watch-d6451a?style=for-the-badge&amp;labelColor=2b2b2b" alt="Try it live at epicenter.watch" height="36"></a></p>
+<p align="center"><a href="https://epicenter.watch"><img src="media/hero.jpg" alt="The live console at epicenter.watch, ready for a fault, with a Try it live button: the menu to pick a service, a fault and the model that investigates, the inject button, the benchmark and live tallies, eight live telemetry charts from the shop, and the empty flight log and verdict panels. Click to open the live lab." width="900"></a></p>
+<p align="center">
+  <a href="https://epicenter.watch"><img src="https://img.shields.io/badge/Try_it_live-epicenter.watch-d6451a?style=for-the-badge&amp;labelColor=2b2b2b" alt="Try it live at epicenter.watch" height="36"></a>&nbsp;&nbsp;
+  <a href="https://huggingface.co/maxkempler/epicenter-glimmer-30b-rca-lora"><img src="https://img.shields.io/badge/Hugging_Face-Glimmer_30B_LoRA-2b2b2b?style=for-the-badge&amp;logo=huggingface&amp;logoColor=ffd21e&amp;labelColor=2b2b2b" alt="The fine-tuned Glimmer 30B adapter on Hugging Face" height="36"></a>
+</p>
 
 **Epicenter watches server and service telemetry, detects when it departs from normal, and sends a Meta Muse agent to find which component caused it.** The agent queries metrics, logs, traces and the call graph, and returns five ranked root causes. A deterministic verifier checks the evidence behind every cause, and the agent drafts the internal ticket note and the customer update, citing that evidence sentence by sentence.
 
