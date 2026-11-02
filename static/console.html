@@ -194,7 +194,8 @@ a.btn.solid { color: var(--surface); }
 
 /* figures */
 .figs { display: grid; grid-template-columns: repeat(3, 1fr); }
-.figs div { padding: 14px 18px; border-right: 1px solid var(--rule); display: flex; flex-direction: column; justify-content: space-between; }
+.figs div { padding: 14px 18px; border-right: 1px solid var(--rule); display: flex; flex-direction: column; justify-content: flex-start; }
+.figs .label { min-height: 2.5em; }   /* a label may wrap to two lines on a laptop: the figures still line up */
 .figs div:last-child { border-right: 0; }
 .figs b { display: block; font: 600 34px/1 var(--cond); margin-top: 8px; white-space: nowrap; }
 .figs b small { display: block; margin-top: 6px; font: 400 12px/1.35 var(--mono); color: var(--ink-3); letter-spacing: 0; white-space: normal; }
