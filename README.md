@@ -13,13 +13,15 @@ It is measured on 468 held-out outages from the [RCAEval](https://github.com/pha
 
 Built for the Meta Global AI Developer Hackathon, October 26 – November 4, 2026.
 
+**Contents:** [Results at a glance](#results-at-a-glance) · [How it works](#how-it-works) · [The live lab](#the-live-lab) · [Open weights](#open-weights-fine-tuning-muse-glimmer) · [Evaluation in detail](#evaluation-in-detail) · [Reproduce](#reproduce) · [Limitations](#limitations)
+
 ---
 
 ## Results at a glance
 
 Top-1 accuracy (AC@1, the true root cause ranked first) on the held-out test split. The investigation starts at the fault time, as RCAEval gives it to every published method.
 
-<p align="center"><img src="media/results.svg" alt="Top-1 accuracy on 468 held-out outages: the hosted Muse Spark agent scores 0.95, 0.96 and 0.98 on RE1, RE2 and RE3, against 0.67, 0.78 and 0.72 for N-Sigma and 0.50, 0.70 and 0.49 for the no-AI control. End to end on RE3, with our own detector choosing where to look, 0.35 with metrics only and 0.62 with error logs." width="900"></p>
+<p align="center"><img src="media/results.svg" alt="Top-1 accuracy on 468 held-out outages: the hosted Muse Spark agent scores 0.951, 0.963 and 0.975 on RE1, RE2 and RE3, against 0.667, 0.778 and 0.716 for N-Sigma and 0.498, 0.698 and 0.494 for the no-AI control. End to end on RE3, with our own detector choosing where to look, 0.346 with metrics only and 0.617 with error logs." width="900"></p>
 
 | Method | RE1 · 225 outages | RE2 · 162 outages | RE3 · 81 outages |
 |---|---:|---:|---:|
@@ -72,6 +74,9 @@ The same agent loop runs on three Meta models: Muse Spark through the Meta Model
 - **Approve the fix.** When the first cause passed the verifier, the lab looks the blamed service up in its change log (the faults it applied, as a deploy history records changes). If that service has a recorded change, it proposes rolling it back and waits 45 s for a human to approve. On approval it reverts the change and confirms recovery with the same rule that raised the alarm: in the three recorded approvals, telemetry was back to normal 22.3, 27.3 and 37.5 s later. A wrong diagnosis finds no change to roll back, so nothing is proposed. Unapproved, the lab restores itself anyway and records the proposal as timed out. The rollback only ever reverses the lab's own fault.
 - **Why first, and why not first.** Each cause in a verdict opens a panel: its strongest cited evidence against the first cause's and the verifier's bar, the verifier's decision, the tool calls it cites (each one finds its step in the flight log), and its blast radius. The blast radius lists the services that call into it according to the outage's traces, which of them showed problems, and, on the live shop, the customer-facing flows that pass through it (browsing products, the cart, checkout). That is what a customer update is written from.
 
+<p align="center"><img src="media/live.jpg" alt="The live lab after a real outage: every phase from queued to recovered in the top rail, the charts, the proposed rollback of the latest change to paymentservice approved by a person, the recovery line, and the verified verdict with paymentservice first at 96%" width="900"></p>
+<p align="center"><sub>A frame from a screen recording of a real outage on epicenter.watch on November 2, not a mock-up: paymentservice slowed by 400 ms, named first at 96% and verified, the rollback approved by a person, telemetry back to normal 21.2 s later.</sub></p>
+
 Every service is measured from its callers' spans as well as its own, the way a service mesh would, so even an untraced service shows up. The calibration batch after that change: alarm on 9 of 9 faults, the broken service ranked first on 6 and in the top three on 8. The three misses are a starved checkout service read as its slow callee, cart-service packet loss read as the Redis it talks to, and a starved frontend, where every request looks slow.
 
 **Alerts in, Slack out.** `POST /webhook/alertmanager` accepts a Prometheus Alertmanager payload and investigates from the alert's start time. A finished investigation can be posted to Slack as a Block Kit message with the causes, the verifier's verdicts and the drafts.
@@ -89,6 +94,8 @@ So it was taught by the hosted agent ([`scripts/finetune/`](scripts/finetune)):
 1. **Lessons.** Hosted Spark investigated every *train-split* case. The 246 runs where it ranked the true cause first *and* the verifier accepted that cause became the lessons (212 to train, 34 to validate). Test cases are never read.
 2. **Training.** QLoRA following the recipe in Meta's Muse Glimmer post-training guide, on one H100 on Modal: a 4-bit NF4 base, rank-32 adapters on the language model's projections, 2 epochs. Examples are tokenized with Glimmer's own chat template, and only what the model writes is trained: its reasoning notes, its tool calls in Glimmer's native format and its end-of-turn tokens. Validation loss fell from 0.349 to 0.168.
 3. **Evaluation.** One vLLM server holds the base model and the adapter, so both are scored on the same weights, server and settings, on all 468 test outages.
+
+<p align="center"><img src="media/glimmer.svg" alt="Top-1 accuracy of the Glimmer 30B agent on the held-out outages: base 0.653, 0.586 and 0.580 on RE1, RE2 and RE3; fine-tuned 0.911, 0.944 and 0.815. Investigations that never submitted a ranking: 140 of 468 before fine-tuning, 1 of 468 after." width="640"></p>
 
 | Glimmer 30B on the test split | Base | Fine-tuned |
 |---|---:|---:|
@@ -193,13 +200,18 @@ Most misses are near misses: of hosted Spark's 19 wrong first answers, 15 had th
 
 **Robustness to messy telemetry.** Real telemetry is often incomplete, so the all-sources hosted agent was re-run on RE2's 162 test outages with one natural degradation at a time, applied before the investigation starts. The conditions were frozen as [`eval-spec-v1.3`](https://github.com/MKempler/epicenter/tree/eval-spec-v1.3) before any test run.
 
+<details>
+<summary><b>Robustness table: each degraded input against the full input, RE2</b></summary>
+
 | RE2 · 162 test outages | AC@1 | AC@3 | Against full input (paired McNemar, AC@1) |
 |---|---:|---:|---|
-| Full input: metrics, logs, traces | 0.963 | 0.988 | — |
+| Full input: metrics, logs, traces | 0.963 | 0.988 | reference |
 | Logs removed | 0.957 | 0.994 | 2 gained, 3 lost, p = 1.0 |
 | Traces removed (and with them the call graph) | 0.963 | 0.975 | 3 gained, 3 lost, p = 1.0 |
 | Noisy metrics (noise at half each metric's normal spread) | 0.969 | 0.994 | 2 gained, 1 lost, p = 1.0 |
 | Alarm 60 s late | 0.944 | 0.969 | 2 gained, 5 lost, p = 0.45 |
+
+</details>
 
 No degradation causes a significant drop; at 162 outages that rules out large drops, not small ones, and the late alarm costs the most. Logs and traces stand in for each other: removing either one alone causes no significant drop, while removing both does. The remove-both figure is the ladder's existing metrics-only rung (same model, prompts and tools, run under `eval-spec-v1`, not a fresh v1.3 run), at 0.901 AC@1 against 0.963 (p = 0.012). One of the two is enough for the network faults that metrics miss.
 
@@ -224,11 +236,16 @@ The error-log settings were frozen under `eval-spec-v1.4` before any test run, o
 
 **Detection on its own.** On the [SMD](https://github.com/NetManAIOps/OmniAnomaly) dataset (28 servers, 327 labelled anomaly events), each detector is fit per server on the training data alone: the z-score flags beyond 3 standard deviations, and the isolation forest and LSTM autoencoder at the 99th percentile of their training scores. Nothing is tuned on test labels. Scoring is event-level: one labelled segment is one event, and no point adjustment is applied.
 
+<details>
+<summary><b>Detection table: three detectors on 28 SMD servers</b></summary>
+
 | Detector | Precision | Recall | F1 [95% CI] | Mean delay (rows) |
 |---|---:|---:|---:|---:|
 | Rolling z-score | 0.058 | 0.991 | 0.109 [0.081, 0.143] | 0.3 |
 | Isolation forest | 0.091 | 0.651 | 0.160 [0.110, 0.231] | 15.2 |
 | LSTM autoencoder | 0.230 | 0.474 | 0.310 [0.255, 0.372] | 9.2 |
+
+</details>
 
 **Speed and cost.** On 20 RE1 train outages, an agent investigation took a median of 41 s on hosted Spark (90th percentile 91 s) and 22 s on Spark Open (33 s). Hosted runs use the Meta Model API's Contributor tier, about $0.0055 per investigation ($0.077 at Standard pricing). The Contributor tier allows Meta to train on requests, so only public benchmark data is ever sent through it.
 
@@ -311,7 +328,7 @@ modal deploy scripts/finetune/modal_app.py               # vLLM: base and adapte
 
 - **Benchmarks are cleaner than production.** RCAEval injects one fault at a time into three demo systems. Real outages overlap, cascade and come with noisier telemetry.
 - **Detection is the weak link end to end.** Even with error logs it misses 30 of RE3's 81 outages (52 with metrics alone), and the SMD detectors trade precision against recall at F1 0.11–0.31. The log signal's settings were chosen where they did no harm on train, not where they were shown to help, because the train split has none of the outage types it later caught.
-- **The live lab is small.** 10 services, four fault types, and calibration batches of nine outages: a demonstration, not a benchmark. Its public tally counts every outage, early test runs included: as of November 2, 33 outages, 31 investigated, the broken service named first in 21 and in the top three in 23 ([`runs/live/incidents.jsonl`](runs/live/incidents.jsonl)). With Spark Open, the lab's default, 17 of the 23 live answers that cleared the 92% bar were right. That bar was fitted on hosted Spark's benchmark runs; with 22 outages, a different model and a noisier real-time setting, this is a caution, not a measurement of how well the bar transfers. Its clearest blind spot is a frozen service the shop can't work without (currency, recommendations, the product catalog): the frontend waits on it, every service's traffic collapses at once, the frozen service itself goes silent, and the frontend looks like the cause. One of those four outages was named first, against all four freezes of the optional ads service. The verifier also scores a service going silent as weak evidence; treating silence as a signal is future work.
+- **The live lab is small.** 10 services, four fault types, and calibration batches of nine outages: a demonstration, not a benchmark. Its public tally counts every outage, early test runs included. In the records committed on November 2 at 1:35 PM ET there are 33 outages; the alarm fired on 31, and every outage whose alarm fires is investigated. Of those 31, the broken service was named first in 21 and in the top three in 23 ([`runs/live/incidents.jsonl`](runs/live/incidents.jsonl)). With Spark Open, the lab's default, 17 of the 23 live answers that cleared the 92% bar were right. That bar was fitted on hosted Spark's benchmark runs; with 23 answers, a different model and a noisier real-time setting, this is a caution, not a measurement of how well the bar transfers. Its clearest blind spot is a frozen service the shop can't work without (currency, recommendations, the product catalog): the frontend waits on it, every service's traffic collapses at once, the frozen service itself goes silent, and the frontend looks like the cause. One of those four outages was named first, against all four freezes of the optional ads service. The verifier also scores a service going silent as weak evidence; treating silence as a signal is future work.
 - **The fine-tuned model still trails the hosted one** on first place for RE1 and RE3. It learned from Spark's actions and short notes; Spark's full reasoning is not available to learn from.
 - **In this demo Glimmer runs on a rented cloud GPU.** Keeping telemetry on your own hardware is what open weights make possible, not what this deployment does.
 - **It can blame a service's own database.** In 2 of hosted Spark's 19 wrong first answers on test, it named a Train Ticket service's MongoDB instead of the service whose fault made the database change. The database's change is real evidence, so the verifier accepts it: the verifier checks that cited evidence is real, not which way cause and effect run. A check of which changed first, developed on train outages under a new spec, is the natural next step. `python scripts/report_misses.py` reproduces the count.
