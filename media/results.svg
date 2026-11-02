@@ -1,0 +1,65 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 392" width="900" height="392" role="img" aria-label="Top-1 accuracy on held-out outages: Epicenter 0.95 to 0.98 against N-Sigma 0.67 to 0.78; end to end on RE3, 0.35 with metrics only and 0.62 with error logs"><style>
+  .t1 { fill: #0b0b0b; } .t2 { fill: #52514e; } .grid { stroke: #e4e3df; } .axis { stroke: #b9b7b0; }
+  .s1 { fill: #2a78d6; } .s2 { fill: #eb6834; } .s3 { fill: #1baf7a; }
+  @media (prefers-color-scheme: dark) {
+    .t1 { fill: #f0efec; } .t2 { fill: #c3c2b7; } .grid { stroke: #30363d; } .axis { stroke: #57606a; }
+    .s1 { fill: #3987e5; } .s2 { fill: #d95926; } .s3 { fill: #199e70; }
+  }
+  text { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif; }
+  .title { font-size: 15px; font-weight: 600; } .sub { font-size: 12px; } .lab { font-size: 13px; }
+  .val { font-size: 11.5px; font-variant-numeric: tabular-nums; } .leg { font-size: 12.5px; }</style>
+<text class="t1 title" x="20" y="28">Top-1 accuracy on 468 held-out benchmark outages</text>
+<text class="t2 sub" x="20" y="47">Investigation starts at the fault time, as RCAEval gives it to every method</text>
+<line class="axis" x1="64" x2="584" y1="318.0" y2="318.0" stroke-width="1"/>
+<text class="t2 val" x="56" y="322.0" text-anchor="end">0.00</text>
+<line class="grid" x1="64" x2="584" y1="261.5" y2="261.5" stroke-width="1"/>
+<text class="t2 val" x="56" y="265.5" text-anchor="end">0.25</text>
+<line class="grid" x1="64" x2="584" y1="205.0" y2="205.0" stroke-width="1"/>
+<text class="t2 val" x="56" y="209.0" text-anchor="end">0.50</text>
+<line class="grid" x1="64" x2="584" y1="148.5" y2="148.5" stroke-width="1"/>
+<text class="t2 val" x="56" y="152.5" text-anchor="end">0.75</text>
+<line class="grid" x1="64" x2="584" y1="92.0" y2="92.0" stroke-width="1"/>
+<text class="t2 val" x="56" y="96.0" text-anchor="end">1.00</text>
+<path class="s1" d="M91.7,318 V107.0 Q91.7,103.0 95.7,103.0 H125.69999999999999 Q129.7,103.0 129.7,107.0 V318 Z"/>
+<text class="t1 val" x="110.7" y="97.0" text-anchor="middle" font-weight="600">0.95</text>
+<path class="s2" d="M131.7,318 V171.3 Q131.7,167.3 135.7,167.3 H165.7 Q169.7,167.3 169.7,171.3 V318 Z"/>
+<text class="t2 val" x="150.7" y="161.3" text-anchor="middle">0.67</text>
+<path class="s3" d="M171.7,318 V209.5 Q171.7,205.5 175.7,205.5 H205.7 Q209.7,205.5 209.7,209.5 V318 Z"/>
+<text class="t2 val" x="190.7" y="199.5" text-anchor="middle">0.50</text>
+<text class="t1 lab" x="150.7" y="340" text-anchor="middle">RE1</text>
+<path class="s1" d="M265.0,318 V104.4 Q265.0,100.4 269.0,100.4 H299.0 Q303.0,100.4 303.0,104.4 V318 Z"/>
+<text class="t1 val" x="284.0" y="94.4" text-anchor="middle" font-weight="600">0.96</text>
+<path class="s2" d="M305.0,318 V146.2 Q305.0,142.2 309.0,142.2 H339.0 Q343.0,142.2 343.0,146.2 V318 Z"/>
+<text class="t2 val" x="324.0" y="136.2" text-anchor="middle">0.78</text>
+<path class="s3" d="M345.0,318 V164.4 Q345.0,160.4 349.0,160.4 H379.0 Q383.0,160.4 383.0,164.4 V318 Z"/>
+<text class="t2 val" x="364.0" y="154.4" text-anchor="middle">0.70</text>
+<text class="t1 lab" x="324.0" y="340" text-anchor="middle">RE2</text>
+<path class="s1" d="M438.3,318 V101.6 Q438.3,97.6 442.3,97.6 H472.3 Q476.3,97.6 476.3,101.6 V318 Z"/>
+<text class="t1 val" x="457.3" y="91.6" text-anchor="middle" font-weight="600">0.98</text>
+<path class="s2" d="M478.3,318 V160.2 Q478.3,156.2 482.3,156.2 H512.3 Q516.3,156.2 516.3,160.2 V318 Z"/>
+<text class="t2 val" x="497.3" y="150.2" text-anchor="middle">0.72</text>
+<path class="s3" d="M518.3,318 V210.4 Q518.3,206.4 522.3,206.4 H552.3 Q556.3,206.4 556.3,210.4 V318 Z"/>
+<text class="t2 val" x="537.3" y="200.4" text-anchor="middle">0.49</text>
+<text class="t1 lab" x="497.3" y="340" text-anchor="middle">RE3</text>
+<rect class="s1" x="64" y="62" width="12" height="12" rx="3"/>
+<text class="t1 leg" x="82" y="72.5">Epicenter: hosted Muse Spark agent</text>
+<rect class="s2" x="328.4" y="62" width="12" height="12" rx="3"/>
+<text class="t1 leg" x="346.4" y="72.5">N-Sigma, best published method</text>
+<rect class="s3" x="566.4" y="62" width="12" height="12" rx="3"/>
+<text class="t1 leg" x="584.4" y="72.5">No-AI control: rank by deviation</text>
+<text class="t1 lab" x="660" y="28" font-weight="600">RE3 code faults, end to end</text>
+<text class="t2 sub" x="660" y="47">Our own detector picks where to look</text>
+<line class="axis" x1="660" x2="860" y1="318.0" y2="318.0" stroke-width="1"/>
+<line class="grid" x1="660" x2="860" y1="261.5" y2="261.5" stroke-width="1"/>
+<line class="grid" x1="660" x2="860" y1="205.0" y2="205.0" stroke-width="1"/>
+<line class="grid" x1="660" x2="860" y1="148.5" y2="148.5" stroke-width="1"/>
+<line class="grid" x1="660" x2="860" y1="92.0" y2="92.0" stroke-width="1"/>
+<path class="s1" d="M690,318 V243.9 Q690,239.9 694,239.9 H742 Q746,239.9 746,243.9 V318 Z"/>
+<text class="t1 val" x="718.0" y="233.9" text-anchor="middle" font-weight="600">0.35</text>
+<text class="t1 lab" x="718.0" y="340" text-anchor="middle">metrics only</text>
+<path class="s1" d="M790,318 V182.5 Q790,178.5 794,178.5 H842 Q846,178.5 846,182.5 V318 Z"/>
+<text class="t1 val" x="818.0" y="172.5" text-anchor="middle" font-weight="600">0.62</text>
+<text class="t1 lab" x="818.0" y="340" text-anchor="middle">+ error logs</text>
+<text class="t2 sub" x="660" y="364">23 outages gained, 1 lost</text>
+<text class="t2 sub" x="660" y="380">(exact McNemar, p = 3e-6)</text>
+</svg>

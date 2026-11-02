@@ -1,5 +1,7 @@
 # Epicenter
 
+[![Live demo](https://img.shields.io/badge/live_demo-epicenter.watch-d6451a)](https://epicenter.watch) [![Model on Hugging Face](https://img.shields.io/badge/model-Glimmer_30B_LoRA-ffcc4d?logo=huggingface&logoColor=black)](https://huggingface.co/maxkempler/epicenter-glimmer-30b-rca-lora) [![License: MIT](https://img.shields.io/badge/license-MIT-2a78d6)](LICENSE) [![Tests](https://img.shields.io/badge/tests-191-2ea44f)](tests)
+
 **Epicenter watches server and service telemetry, detects when it departs from normal, and sends a Meta Muse agent to find which component caused it.** The agent queries metrics, logs, traces and the call graph, and returns five ranked root causes. A deterministic verifier checks the evidence behind every cause, and the agent drafts the internal ticket note and the customer update, citing that evidence sentence by sentence.
 
 It is measured on 468 held-out outages from the [RCAEval](https://github.com/phamquiluan/RCAEval) benchmark against published methods re-run on the same cases, and it can be watched live: break a service in a running microservice shop and see the alarm, the investigation and the verdict as they happen.
@@ -13,6 +15,8 @@ Built for the Meta Global AI Developer Hackathon, October 26 – November 4, 202
 ## Results at a glance
 
 Top-1 accuracy (AC@1, the true root cause ranked first) on the held-out test split. The investigation starts at the fault time, as RCAEval gives it to every published method.
+
+<p align="center"><img src="media/results.svg" alt="Top-1 accuracy on 468 held-out outages: the hosted Muse Spark agent scores 0.95, 0.96 and 0.98 on RE1, RE2 and RE3, against 0.67, 0.78 and 0.72 for N-Sigma and 0.50, 0.70 and 0.49 for the no-AI control. End to end on RE3, with our own detector choosing where to look, 0.35 with metrics only and 0.62 with error logs." width="900"></p>
 
 | Method | RE1 · 225 outages | RE2 · 162 outages | RE3 · 81 outages |
 |---|---:|---:|---:|
@@ -46,6 +50,9 @@ flowchart LR
 2. **Investigate.** The agent starts from the same top deviations a one-shot prompt would see, then works through up to 10 turns of read-only tools: `compare_to_baseline`, `get_metric_window`, `get_logs`, `get_trace_errors` and `get_dependencies`. A root cause often makes its callers look unhealthy too, so it is asked to tell causes from victims. It finishes with `submit_ranking`: five services, each with an indicator, one sentence of reasoning, a confidence and the IDs of the tool calls that support it.
 3. **Verify.** [`src/verify.py`](src/verify.py) accepts a cause only if at least one call it cites was really made and returned evidence for that service at or above the evidence threshold. A cause that fails is rejected and scores as a miss in its rank, so the next guess can't move up into it.
 4. **Hand off.** The agent drafts an internal ticket note and a customer update. Every sentence cites evidence, and the share of sentences whose citations check out is reported as groundedness.
+
+<p align="center"><img src="media/replay.png" alt="A recorded investigation in the console: the metrics that moved, the alarm line, and the verdict, with currencyservice first at 95% and verified, and checkoutservice's 'why not first?' panel open, comparing its strongest evidence with the cause's" width="900"></p>
+<p align="center"><sub>A recorded investigation replayed in the console: the metrics around the alarm, and the verdict with the second suspect's <i>why not first?</i> panel open.</sub></p>
 
 The same agent loop runs on three Meta models: Muse Spark through the Meta Model API, Muse Spark Open on Baseten, and Muse Glimmer 30B served by vLLM, before and after fine-tuning. Glimmer speaks Chat Completions rather than the Responses API, so a small adapter ([`src/chat_adapter.py`](src/chat_adapter.py)) translates between the two and leaves the agent, verifier and cache unchanged.
 
@@ -293,6 +300,7 @@ modal deploy scripts/finetune/modal_app.py               # vLLM: base and adapte
 | [`src/api.py`](src/api.py), [`static/console.html`](static/console.html) | The API and the single-page console |
 | [`scripts/`](scripts) | Downloads, evaluations, baselines, reports, replays, the user study and the fine-tune |
 | [`runs/`](runs) | Every recorded run: per-case results, model calls, baselines, live incidents |
+| [`media/`](media) | The README's chart (drawn from recorded runs by [`scripts/make_figures.py`](scripts/make_figures.py)) and console images |
 
 ---
 
