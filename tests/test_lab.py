@@ -1,4 +1,5 @@
 import json
+from dataclasses import replace
 
 import pytest
 
@@ -438,3 +439,14 @@ def test_model_check_reports_a_dead_key_without_raising(monkeypatch):
     monkeypatch.setattr("openai.OpenAI", Refusing)
     line = model_check.check("baseten")
     assert line["ok"] is False and "401" in line["error"] and line["model"] == "meta-models/muse-spark-open-1026"
+
+
+def test_breaks_are_refused_up_front_once_the_daily_budget_is_spoken_for(tmp_path):
+    from datetime import datetime, timezone
+    lab, inj, seen = make_lab(tmp_path)
+    lab.cfg = replace(lab.cfg, daily_investigations=2, visitor_cooldown_s=0)
+    lab.submit("cartservice", "delay", "1.1.1.1")
+    lab.investigations_today = (datetime.now(timezone.utc).strftime("%Y-%m-%d"), 1)
+    with pytest.raises(OverflowError, match="used up"):
+        lab.submit("frontend", "cpu", "2.2.2.2")     # one done today and one queued fill a budget of two
+    assert len(lab.waiting) == 1

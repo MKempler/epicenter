@@ -117,6 +117,9 @@ class Lab:
                 raise OverflowError("the queue is full, try again in a few minutes")
             if now - self.last_request.get(visitor, -1e18) < self.cfg.visitor_cooldown_s:
                 raise PermissionError("one break every ten minutes per visitor")
+            if self._investigations_used(day) + len(self.waiting) + (self.current is not None) >= self.cfg.daily_investigations:
+                raise OverflowError("today's live outages are used up; come back tomorrow, "
+                                    "or watch any of the 468 recorded investigations under Replay")
             used = self.model_uses.get(model, (day, 0))
             used = used if used[0] == day else (day, 0)
             cap = self.models[model]
@@ -204,6 +207,9 @@ class Lab:
                 self.run(incident)
             except Exception:   # one bad outage must never stop the queue behind it
                 traceback.print_exc()
+
+    def _investigations_used(self, day: str) -> int:
+        return self.investigations_today[1] if self.investigations_today[0] == day else 0
 
     def _budget_left(self) -> bool:
         day = datetime.now(timezone.utc).strftime("%Y-%m-%d")

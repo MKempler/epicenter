@@ -109,7 +109,9 @@ class Live:
     provider: str = "baseten"       # Muse Spark Open: about twice as fast as hosted
     queue_max: int = 20
     visitor_cooldown_s: int = 600
-    daily_investigations: int = 120  # each costs about $0.10 on Baseten, so a stranger can spend at most ~$12 a day
+    # Each live outage costs about $0.07 on Baseten (investigation and drafts), drawn from the hackathon key's
+    # fixed credit, which can't be checked; 50 a day keeps a week of public traffic within what's left.
+    daily_investigations: int = 50
     # Muse Glimmer fine-tuned, on a dedicated GPU rented on Modal, as a visitor's alternative. Offered only
     # when LIVE_GLIMMER=1 and the endpoint is configured; capped per day because each run can keep an H200
     # up for 5-10 minutes (about $0.35-0.75).
