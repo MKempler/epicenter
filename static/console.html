@@ -614,11 +614,12 @@ function renderRail(id, phase, times, clock, phases = PHASES) {
   });
 }
 
+const glide = () => matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth";
 function logLine(logId, stamp, tag, text, cls, callId) {
   const log = $(`#${logId}`); const line = el("div", "line " + (cls || ""));
   if (callId) line.dataset.call = callId;
   line.append(el("span", "num", stamp), el("span", "tag", tag), el("span", "txt", text));
-  log.append(line); log.scrollTop = log.scrollHeight; return line;
+  log.append(line); log.scrollTo({ top: log.scrollHeight, behavior: glide() }); return line;   // follow the newest call without a jump
 }
 function logStep(logId, step, stamp) {
   if (step.type === "note") return logLine(logId, stamp, "AGT", step.text, "note");
@@ -731,10 +732,10 @@ function renderVerdict(id, causes, error, ctx) {
     }
     for (const cid of c.evidence || []) {
       const cite = el("span", "cite", cid); cite.tabIndex = 0; cite.title = "Shows the tool call this evidence comes from in the flight log";
-      const hl = (on) => document.querySelectorAll(`.line[data-call="${CSS.escape(cid)}"]`).forEach((n) => { n.classList.toggle("hl", on); if (on) n.scrollIntoView({ block: "nearest" }); });
+      const hl = (on) => document.querySelectorAll(`.line[data-call="${CSS.escape(cid)}"]`).forEach((n) => { n.classList.toggle("hl", on); if (on) n.scrollIntoView({ block: "nearest", behavior: glide() }); });
       cite.onmouseenter = cite.onfocus = () => hl(true); cite.onmouseleave = cite.onblur = () => hl(false);
       cite.onclick = () => document.querySelectorAll(`.line[data-call="${CSS.escape(cid)}"]`).forEach((n) => {
-        n.scrollIntoView({ block: "nearest" }); n.classList.add("flash"); setTimeout(() => n.classList.remove("flash"), 2500); });
+        n.scrollIntoView({ block: "nearest", behavior: glide() }); n.classList.add("flash"); setTimeout(() => n.classList.remove("flash"), 2500); });
       td.append(cite);
     }
     tr.append(td); table.append(tr);
