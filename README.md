@@ -319,7 +319,7 @@ modal deploy scripts/finetune/modal_app.py               # vLLM: base and adapte
 | [`src/llm.py`](src/llm.py), [`src/chat_adapter.py`](src/chat_adapter.py), [`src/cache.py`](src/cache.py) | Model providers, the Chat Completions adapter and the record-and-replay cache |
 | [`src/lab/`](src/lab), [`lab/`](lab) | The live lab: telemetry, fault injection, the incident loop and its Compose file |
 | [`src/api.py`](src/api.py), [`static/console.html`](static/console.html) | The API and the single-page console |
-| [`scripts/`](scripts) | Downloads, evaluations, baselines, reports, replays, the user study and the fine-tune |
+| [`scripts/`](scripts) | Downloads, evaluations, baselines, reports, replays and the fine-tune |
 | [`runs/`](runs) | Every recorded run: per-case results, model calls, baselines, live incidents |
 | [`media/`](media) | The README's chart (drawn from recorded runs by [`scripts/make_figures.py`](scripts/make_figures.py)) and console images |
 
