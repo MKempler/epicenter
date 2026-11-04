@@ -3,6 +3,7 @@
 <p align="center"><a href="https://epicenter.watch"><img src="media/hero.jpg" alt="The live console at epicenter.watch, ready for a fault, with a Try it live button: the menu to pick a service, a fault and the model that investigates, the inject button, the benchmark and live tallies, eight live telemetry charts from the shop, and the empty flight log and verdict panels. Click to open the live lab." width="900"></a></p>
 <p align="center">
   <a href="https://epicenter.watch"><img src="https://img.shields.io/badge/Try_it_live-epicenter.watch-d6451a?style=for-the-badge&amp;labelColor=2b2b2b" alt="Try it live at epicenter.watch" height="36"></a>&nbsp;&nbsp;
+  <a href="https://youtu.be/3jAsTLdBPuw"><img src="https://img.shields.io/badge/Watch_the_3--minute_demo-YouTube-2b2b2b?style=for-the-badge&amp;logo=youtube&amp;logoColor=ff0000&amp;labelColor=2b2b2b" alt="Watch the 3-minute demo on YouTube" height="36"></a>&nbsp;&nbsp;
   <a href="https://huggingface.co/maxkempler/epicenter-glimmer-30b-rca-lora"><img src="https://img.shields.io/badge/Hugging_Face-Glimmer_30B_LoRA-2b2b2b?style=for-the-badge&amp;logo=huggingface&amp;logoColor=ffd21e&amp;labelColor=2b2b2b" alt="The fine-tuned Glimmer 30B adapter on Hugging Face" height="36"></a>
 </p>
 
