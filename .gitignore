@@ -9,3 +9,6 @@ __pycache__/
 
 # rebuilt from the committed model-call cache by scripts/finetune/build_sft.py
 runs/finetune/*.jsonl
+
+# static build of the console (scripts/build_static.py)
+site/

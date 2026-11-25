@@ -478,7 +478,23 @@ table.dtable td:first-child { white-space: nowrap; overflow-wrap: normal; }   /*
 const $ = (s) => document.querySelector(s);
 const tok = (n) => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
 function el(tag, cls, text) { const n = document.createElement(tag); if (cls) n.className = cls; if (text != null) n.textContent = String(text); return n; }
-async function api(path, opts) { const r = await fetch(path, opts); const body = await r.json().catch(() => ({})); if (!r.ok) throw Object.assign(new Error(body.detail || r.status), { status: r.status }); return body; }
+/* A static build (scripts/build_static.py) marks the page and ships each response the replay and
+   evidence views read as a file under api/; the live lab and the user study need the server. */
+const STATIC = !!document.querySelector('meta[name="epicenter-static"]');
+function staticPath(path) {
+  const [route, query] = path.split("?"), q = new URLSearchParams(query || ""), parts = route.split("/").slice(2);
+  if (parts[0] === "results") {
+    const anchor = { "": "inject", inject: "inject", detector: "detector", "detector+logs": "detector-logs" }[q.get("anchor") || ""];
+    return `api/results/${q.get("suite")}-${anchor}.json`;
+  }
+  if (parts[0] === "replays" && parts.length === 1) return `api/replays/${q.get("suite")}/index.json`;
+  if (parts[0] === "replays") return `api/replays/${parts[1]}/${parts[2]}${q.get("reveal") === "true" ? ".answer" : ""}.json`;
+  if (parts[0] === "trust" || parts[0] === "detection") return `api/${parts[0]}.json`;
+  return null;
+}
+async function api(path, opts) {
+  if (STATIC) { path = staticPath(path); if (!path) throw Object.assign(new Error("needs the server"), { status: 404 }); }
+  const r = await fetch(path, opts); const body = await r.json().catch(() => ({})); if (!r.ok) throw Object.assign(new Error(body.detail || r.status), { status: r.status }); return body; }
 const SYSTEM = { OB: "Online Boutique", SS: "Sock Shop", TT: "Train Ticket" };
 const SHORT_SYSTEM = { OB: "Boutique", SS: "Sock Shop", TT: "Train Ticket" };
 const HOSTED = "Muse Spark (hosted)";   // every recorded replay is hosted Spark's agent (spark-agent / spark-agent-all)
@@ -515,7 +531,9 @@ try { const t = localStorage.getItem("theme"); if (t) document.documentElement.d
 function go(hash) { if (location.hash.slice(1) !== hash) location.hash = hash; else route(); }
 const narrow = () => matchMedia("(max-width: 1100px)").matches;
 document.querySelectorAll("nav button[data-view]").forEach((b) => b.onclick = () => go(b.dataset.view));
-let currentView = "live";
+const HOME = STATIC ? "replay" : "live";
+if (STATIC) document.querySelector('nav button[data-view="live"]').remove();
+let currentView = HOME;
 function show(view, autoload = true) {
   currentView = view;
   // the top bar describes what this view shows: the live lab, a recorded investigation, or the benchmark
@@ -836,7 +854,7 @@ $("#table-btn").onclick = () => {
   box.replaceChildren(el("p", "dtable-note", "Before: the metric's mean before the alarm. After: its mean after the alarm. Peak: its highest value after it."), t);
 };
 $("#reveal-btn").onclick = async () => {
-  const b = replay.bundle, full = await api(`/api/replays/${b.suite}/${b.case_id}?reveal=true`);
+  const b = replay.bundle, full = { ...b, ...await api(`/api/replays/${b.suite}/${b.case_id}?reveal=true`) };
   const fold = (s) => (s || "").split("_")[0].replace("-db", ""), truth = fold(full.answer.service);
   document.querySelectorAll("#replay-verdict tr").forEach((tr) => tr.classList.toggle("truth", fold(tr.dataset.service) === truth));
   const rank = (list) => { const i = (list || []).map(fold).indexOf(truth); return i < 0 ? "not in top 5" : `#${i + 1}`; };
@@ -1255,17 +1273,17 @@ $("#study-finish").onclick = async () => {
 /* ---- deep links: #live, #evidence, #replay, #replay/RE2/<case id>[/play] ---- */
 async function route() {
   const [view, suite, caseId, action] = location.hash.slice(1).split("/");
-  if (view === "study" && suite && /^[A-Za-z0-9-]{2,16}$/.test(caseId || "")) return startStudy(suite, caseId);
+  if (!STATIC && view === "study" && suite && /^[A-Za-z0-9-]{2,16}$/.test(caseId || "")) return startStudy(suite, caseId);
   if (view === "replay" && suite) {
     show("replay", false);
     if (replay.index?.suite !== suite) await loadSuite(suite);
     if (caseId && replay.bundle?.case_id !== caseId) await openCase(caseId);
     if (caseId && action === "play") $("#play-btn").click();
-  } else if (["live", "replay", "evidence"].includes(view)) show(view);
-  else show("live");
+  } else if ((STATIC ? ["replay", "evidence"] : ["live", "replay", "evidence"]).includes(view)) show(view);
+  else show(HOME);
 }
 addEventListener("hashchange", route);
-initLive().then(route);
+(STATIC ? Promise.resolve() : initLive()).then(route);
 </script>
 </body>
 </html>
